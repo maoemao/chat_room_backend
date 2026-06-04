@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "chatroom-backend-collection",
+		"name": "聊天室后端API",
+		"description": "基于Fastify、WebSocket和SQLite的聊天室后端服务API集合",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "认证",
+			"item": [
+				{
+					"name": "用户注册",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\": \"testuser\", \"password\": \"123456\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["register"]
+						},
+						"description": "用户注册接口"
+					},
+					"response": []
+				},
+				{
+					"name": "用户登录",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\": \"testuser\", \"password\": \"123456\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["login"]
+						},
+						"description": "用户登录接口"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "房间",
+			"item": [
+				{
+					"name": "获取所有房间",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rooms",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms"]
+						},
+						"description": "获取所有房间列表"
+					},
+					"response": []
+				},
+				{
+					"name": "创建房间",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\": \"我的聊天室\", \"description\": \"测试聊天室\", \"token\": \"{{token}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/rooms",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms"]
+						},
+						"description": "创建新房间，需要用户token"
+					},
+					"response": []
+				},
+				{
+					"name": "获取房间详情",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rooms/{{roomId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms", "{{roomId}}"]
+						},
+						"description": "获取指定房间的详情"
+					},
+					"response": []
+				},
+				{
+					"name": "加入房间",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"token\": \"{{token}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/rooms/{{roomId}}/join",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms", "{{roomId}}", "join"]
+						},
+						"description": "加入指定房间，需要用户token"
+					},
+					"response": []
+				},
+				{
+					"name": "离开房间",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"token\": \"{{token}}\"}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/rooms/{{roomId}}/leave",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms", "{{roomId}}", "leave"]
+						},
+						"description": "离开指定房间，需要用户token"
+					},
+					"response": []
+				},
+				{
+					"name": "获取房间消息",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rooms/{{roomId}}/messages?limit=50",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms", "{{roomId}}", "messages"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "消息数量限制"
+								}
+							]
+						},
+						"description": "获取房间历史消息"
+					},
+					"response": []
+				},
+				{
+					"name": "获取房间用户",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rooms/{{roomId}}/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["rooms", "{{roomId}}", "users"]
+						},
+						"description": "获取房间内的用户列表"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": ["// 环境变量设置", "pm.environment.set('baseUrl', 'http://localhost:3000');"]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": ["// 登录成功后保存token", "if (pm.response.code === 200 && pm.response.json().success) {", "    const token = pm.response.json().token;", "    if (token) {", "        pm.environment.set('token', token);", "        console.log('Token saved:', token);", "    }", "}", "// 创建房间成功后保存roomId", "if (pm.response.code === 200 && pm.response.json().success && pm.response.json().roomId) {", "    pm.environment.set('roomId', pm.response.json().roomId);", "    console.log('RoomId saved:', pm.response.json().roomId);", "}"]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "API基础URL"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "用户登录token"
+		},
+		{
+			"key": "roomId",
+			"value": "",
+			"type": "string",
+			"description": "房间ID"
+		}
+	]
+}
